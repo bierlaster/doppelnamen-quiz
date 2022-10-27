@@ -17,7 +17,7 @@ import pprint
 from colorama import init, Fore
 import crawler  # own
 
-MODE = ''  # valid: [1, 2, 3, '']
+MODE = ''  # valid: [1, 2, 3, ''] -- leave empty for terminal user prompt
 mode_dict = {
     1: 'MODE 1: Generate n random Doppelnamen (and check their actual frequency)',
     2: 'MODE 2: Check user input for authenticity - warning: any user input is written to database!',
@@ -62,15 +62,17 @@ logging.info(f"OK: {len(suffix_tuples)} rows selected from 'suffixes'")
 
 
 # select real Doppelnamen
-myquery = ("SELECT name, freq_adler, freq_herold FROM 'realnames';")
+myquery = ("SELECT name, freq_adler, freq_herold, freq_abc, freq_google FROM 'realnames';")
 cur.execute(myquery)
 realname_tuples = cur.fetchall()
 realname_list = [x[0] for x in realname_tuples]
 realname_dict = {}
-for name, freq_adler, freq_herold in realname_tuples:
+for name, freq_adler, freq_herold, freq_abc, freq_google in realname_tuples:
     realname_dict[name] = {
         'freq_adler': freq_adler,
-        'freq_herold': freq_herold
+        'freq_herold': freq_herold,
+        'freq_abc': freq_abc,
+        'freq_google': freq_google
     }
 logging.info(f"OK: {len(realname_list)} rows selected from 'realnames'")
 
@@ -106,7 +108,9 @@ def generate_doppelname_w_freq(name='') -> dict:
         d = {'name': name,
              'realname': True,
              'freq_adler': realname_dict[name]['freq_adler'],
-             'freq_herold': realname_dict[name]['freq_herold']
+             'freq_herold': realname_dict[name]['freq_herold'],
+             'freq_abc': realname_dict[name]['freq_abc'],
+             'freq_google': realname_dict[name]['freq_google'],
              }
         return d
 
