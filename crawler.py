@@ -5,6 +5,9 @@ import json  # used by get_herold_telefonbuch_matches()
 from dotenv import load_dotenv  # .env is storing Google developer key
 import os
 from googleapiclient.discovery import build  # used by get_google_at_matches()
+from googleapiclient.errors import HttpError
+
+import logging
 
 load_dotenv()
 GOOGLE_DEVELOPER_KEY = os.environ.get('GOOGLE_DEVELOPER_KEY')
@@ -44,17 +47,24 @@ def get_google_at_matches(lastname) -> int:
         "customsearch", "v1", developerKey=GOOGLE_DEVELOPER_KEY
     )
 
-    res = (
-        service.cse()
-        .list(
-            q=lastname,  # query
-            cx="832f9209602714d00",  # custom search engine ID
-            cr="countryAT"  # country restriction
+    try:
+        res = (
+            service.cse()
+            .list(
+                q=lastname,  # query
+                cx="832f9209602714d00",  # custom search engine ID
+                cr="countryAT"  # country restriction
+            )
+            .execute()
         )
-        .execute()
-    )
-    # return res    # full search results as dict
-    return int(res['searchInformation']['totalResults'])
+
+        # return res    # full search results as dict
+        return int(res['searchInformation']['totalResults'])
+
+    except HttpError as e:
+        logging.error('Error response status code %d, reason %s:', e.resp.status, e.content)
+        return None
+
 
 
 def get_herold_telefonbuch_matches(lastname) -> int:

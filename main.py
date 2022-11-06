@@ -144,8 +144,11 @@ def generate_doppelname_w_freq(name='') -> dict:
                 v_g = crawler.get_google_at_matches(name)
 
                 # add to 'realnames' table
-                # q = (f"INSERT INTO realnames (name, freq_herold, freq_abc) VALUES ('{name}', {v_h}, {v_a}); ")
-                q = (f"INSERT INTO realnames (name, freq_herold, freq_abc, freq_google) VALUES ('{name}', {v_h}, {v_a}, {v_g}); ")
+                # if
+                if v_g is None:
+                    q = (f"INSERT INTO realnames (name, freq_herold, freq_abc) VALUES ('{name}', {v_h}, {v_a}); ")
+                else:
+                    q = (f"INSERT INTO realnames (name, freq_herold, freq_abc, freq_google) VALUES ('{name}', {v_h}, {v_a}, {v_g}); ")
                 cur.execute(q)
                 con.commit()
                 d = {'name': name,
